@@ -76,9 +76,11 @@ void forth_init(void)
 }
 #endif
 
-define dbg_interp_printk( a... )       printk( a )
+void dbg_interp_printk( a... )
+    {printk( a );}
 
-define dbg_internal_printk( a... )     printk( a )
+void dbg_internal_printk( a... )
+    {printk( a )}
 
 
 
