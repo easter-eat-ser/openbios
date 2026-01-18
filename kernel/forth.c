@@ -72,17 +72,14 @@ static ucell *trampoline = t;
 
 void forth_init(void)
 {
-    printk("started init trampoline")
     init_trampoline(trampoline);
-    printk("quit init trampoline")
 }
 #endif
 
-
 define dbg_interp_printk( a... )       printk( a )
 
-
 define dbg_internal_printk( a... )     printk( a )
+
 
 
 void init_trampoline(ucell *tramp)
