@@ -88,14 +88,15 @@ init_memory( void )
 int
 initialize_forth( void )
 {
+	printk("Initializing dict forth_dictionary...\n");
         dict = (unsigned char *)forth_dictionary;
         dicthead = (ucell)FORTH_DICTIONARY_END;
         last = (ucell *)((unsigned char *)forth_dictionary +
                          FORTH_DICTIONARY_LAST);
         dictlimit = sizeof(forth_dictionary);
-
+	printk("Starting forth_init...\n");
 	forth_init();
-
+	printk("Forth_init returned!");
 	PUSH_xt( bind_noname_func(arch_of_init) );
 	fword("PREPOST-initializer");
 

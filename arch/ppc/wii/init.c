@@ -137,7 +137,7 @@ void entry(void) {
     initialize_forth();
     /* won't return */
 
-    printk("of_startup returned!\n");
+    printk("Kernel returned!\n");
     for (;;) {
     }
 }
