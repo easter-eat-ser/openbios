@@ -76,13 +76,6 @@ void forth_init(void)
 }
 #endif
 
-void dbg_interp_printk( a... )
-    {printk( a );}
-
-void dbg_internal_printk( a... )
-    {printk( a )}
-
-
 
 void init_trampoline(ucell *tramp)
 {
@@ -96,7 +89,7 @@ static inline void processxt(ucell xt)
 {
     void (*tokenp) (void);
 
-    dbg_interp_printk("processxt: pc=%x, xt=%x\n", PC, xt);
+    printk("processxt: pc=%x, xt=%x\n", PC, xt);
     tokenp = words[xt];
     tokenp();
 }
@@ -106,7 +99,7 @@ static void docol(void)
     PUSHR(PC);
     PC = read_ucell(cell2pointer(PC));
 
-    dbg_interp_printk("docol: %s\n", cell2pointer( lfa2nfa(PC - sizeof(cell)) ));
+    printk("docol: %s\n", cell2pointer( lfa2nfa(PC - sizeof(cell)) ));
 }
 
 static void semis(void)
@@ -118,7 +111,7 @@ static inline void next(void)
 {
     PC += sizeof(ucell);
 
-    dbg_interp_printk("next: PC is now %x\n", PC);
+    printk("next: PC is now %x\n", PC);
     processxt(read_ucell(cell2pointer(read_ucell(cell2pointer(PC)))));
 }
 
@@ -147,12 +140,12 @@ int enterforth(xt_t xt)
     while (rstackcnt > tmp && !(interruptforth & FORTH_INTSTAT_STOP)) {
         if (debug_xt_list->next == NULL) {
             while (rstackcnt > tmp && !interruptforth) {
-                dbg_interp_printk("enterforth: NEXT\n");
+                printk("enterforth: NEXT\n");
                 next();
             }
         } else {
             while (rstackcnt > tmp && !interruptforth) {
-                dbg_interp_printk("enterforth: NEXT_DBG\n");
+                printk("enterforth: NEXT_DBG\n");
                 next_dbg();
             }
         }
@@ -179,21 +172,21 @@ static void lit(void)
 {                               /* LIT */
     PC += sizeof(cell);
     PUSH(read_ucell(cell2pointer(PC)));
-    dbg_interp_printk("lit: %x\n", read_ucell(cell2pointer(PC)));
+    printk("lit: %x\n", read_ucell(cell2pointer(PC)));
 }
 
 static void docon(void)
 {                               /* DOCON */
     ucell tmp = read_ucell(cell2pointer(read_ucell(cell2pointer(PC)) + sizeof(ucell)));
     PUSH(tmp);
-    dbg_interp_printk("docon: PC=%x, value=%x\n", PC, tmp);
+    printk("docon: PC=%x, value=%x\n", PC, tmp);
 }
 
 static void dovar(void)
 {                               /* DOVAR */
     ucell tmp = read_ucell(cell2pointer(PC)) + sizeof(ucell);
     PUSH(tmp);              /* returns address to variable */
-    dbg_interp_printk("dovar: PC: %x, %x\n", PC, tmp);
+    printk("dovar: PC: %x, %x\n", PC, tmp);
 }
 
 static void dobranch(void)
@@ -217,7 +210,7 @@ static void docbranch(void)
 static void execute(void)
 {                               /* EXECUTE */
     ucell address = POP();
-    dbg_interp_printk("execute: %x\n", address);
+    printk("execute: %x\n", address);
 
     PUSHR(PC);
     trampoline[1] = target_ucell(address);
@@ -235,7 +228,7 @@ static void call(void)
 #else
     void (*funcptr) (void);
     funcptr=(void *)cell2pointer(POP());
-    dbg_interp_printk("call: %x", funcptr);
+    printk("call: %x", funcptr);
     funcptr();
 #endif
 }
@@ -259,7 +252,7 @@ static void dodoes(void)
     ucell data = read_ucell(cell2pointer(PC)) + (2 * sizeof(ucell));
     ucell word = read_ucell(cell2pointer(read_ucell(cell2pointer(PC)) + sizeof(ucell)));
 
-    dbg_interp_printk("DODOES data=%x word=%x\n", data, word);
+    printk("DODOES data=%x word=%x\n", data, word);
 
     PUSH(data);
     PUSH(word);
@@ -368,7 +361,7 @@ static void doivar(void)
     ucell r, *p = (ucell *)(*(ucell *) cell2pointer(PC) + sizeof(ucell));
     ucell ibase = get_myself();
 
-    dbg_interp_printk("ivar, offset: %d size: %d (ibase %d)\n", p[0], p[1], ibase );
+    printk("ivar, offset: %d size: %d (ibase %d)\n", p[0], p[1], ibase );
 
     r = ibase ? ibase + p[0] : pointer2cell(&p[2]);
     PUSH( r );
@@ -379,7 +372,7 @@ static void doival(void)
     ucell r, *p = (ucell *)(*(ucell *) cell2pointer(PC) + sizeof(ucell));
     ucell ibase = get_myself();
 
-    dbg_interp_printk("ivar, offset: %d size: %d\n", p[0], p[1] );
+    printk("ivar, offset: %d size: %d\n", p[0], p[1] );
 
     r = ibase ? ibase + p[0] : pointer2cell(&p[2]);
     PUSH( *(ucell *)cell2pointer(r) );
@@ -390,7 +383,7 @@ static void doidefer(void)
     ucell *p = (ucell *)(*(ucell *) cell2pointer(PC) + sizeof(ucell));
     ucell ibase = get_myself();
 
-    dbg_interp_printk("doidefer, offset: %d size: %d\n", p[0], p[1] );
+    printk("doidefer, offset: %d size: %d\n", p[0], p[1] );
 
     PUSHR(PC);
     PC = ibase ? ibase + p[0] : pointer2cell(&p[2]);
@@ -466,7 +459,7 @@ int printf_console(const char *fmt, ...)
     PC = pointer2cell(trampoline);
 
     while (rstackcnt > tmp) {
-        dbg_interp_printk("printf_console: NEXT\n");
+        printk("printf_console: NEXT\n");
         next();
     }
 
@@ -487,7 +480,7 @@ int getchar_console(void)
     PC = pointer2cell(trampoline);
 
     while (rstackcnt > tmp) {
-        dbg_interp_printk("getchar_console: NEXT\n");
+        printk("getchar_console: NEXT\n");
         next();
     }
 
@@ -714,7 +707,7 @@ static void docol_dbg(void)
         debug_xt_item = debug_xt_item->next;
     }
 
-    dbg_interp_printk("docol_dbg: %s\n", cell2pointer(lfa2nfa(PC - sizeof(cell))));
+    printk("docol_dbg: %s\n", cell2pointer(lfa2nfa(PC - sizeof(cell))));
 }
 
 static void semis_dbg(void)
@@ -785,7 +778,7 @@ static inline void next_dbg(void)
         debug_xt_item = debug_xt_item->next;
     }
 
-    dbg_interp_printk("next_dbg: PC is now %x\n", PC);
+    printk("next_dbg: PC is now %x\n", PC);
 
     /* Intercept DOCOL and SEMIS and redirect to debug versions */
     if (read_ucell(cell2pointer(read_ucell(cell2pointer(PC)))) == DOCOL) {
