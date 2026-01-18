@@ -199,9 +199,9 @@ static void docbranch(void)
 {                               /* conditional branch */
     PC += sizeof(cell);
     if (POP()) {
-        dbg_internal_printk("  ?branch: end loop\n");
+        printk("  ?branch: end loop\n");
     } else {
-        dbg_internal_printk("  ?branch: follow branch\n");
+        printk("  ?branch: follow branch\n");
         PC += read_cell(cell2pointer(PC));
     }
 }
